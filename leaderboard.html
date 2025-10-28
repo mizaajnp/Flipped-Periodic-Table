@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaderboard</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f4f8;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+      h1 {
+        color: #1e3a8a;
+      }
+      table {
+        border-collapse: collapse;
+        width: 80%;
+        max-width: 600px;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 12px;
+        border: 1px solid #ccc;
+        text-align: center;
+      }
+      th {
+        background-color: #1e3a8a;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Leaderboard</h1>
+    <table id="leaderboard-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Player</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data akan diisi oleh JS -->
+      </tbody>
+    </table>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+      // 🔹 Konfigurasi Firebase
+      const firebaseConfig = {
+        apiKey: "API_KEY",
+        authDomain: "PROJECT_ID.firebaseapp.com",
+        databaseURL: "https://peringkat-511cb-default-rtdb.firebaseio.com/",
+        projectId: "PROJECT_ID",
+        storageBucket: "PROJECT_ID.appspot.com",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      // Ambil data leaderboard
+      const leaderboardTable = document.querySelector(
+        "#leaderboard-table tbody"
+      );
+
+      db.ref("leaderboard")
+        .orderByChild("score")
+        .limitToLast(10)
+        .on("value", (snapshot) => {
+          leaderboardTable.innerHTML = ""; // Bersihkan tabel
+          let rank = 1;
+          snapshot.forEach((childSnapshot) => {
+            const data = childSnapshot.val();
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td>${rank}</td>
+            <td>${data.name}</td>
+            <td>${data.score}</td>
+          `;
+            leaderboardTable.appendChild(row);
+            rank++;
+          });
+        });
+    </script>
+  </body>
+</html>
